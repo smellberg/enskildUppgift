@@ -1,0 +1,23 @@
+files:
+  "/etc/systemd/system/web.service":
+    mode: "000644"
+    owner: root
+    group: root
+    content: |
+      [Unit]
+      Description=My Web Application
+      After=network.target
+
+      [Service]
+      User=webuser  # Byt ut detta mot rätt användarnamn
+      Group=webgroup  # Byt ut detta mot rätt grupp
+      WorkingDirectory=/var/app/current
+      ExecStart=/usr/bin/python3 app.py  # Byt ut detta mot ditt startkommando
+      Restart=always
+
+      [Install]
+      WantedBy=multi-user.target
+
+commands:
+  start_web_service:
+    command: "systemctl daemon-reload && systemctl enable web.service && systemctl start web.service"
