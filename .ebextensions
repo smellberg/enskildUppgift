@@ -9,8 +9,8 @@ files:
       After=network.target
 
       [Service]
-      User=webuser  # Byt ut detta mot rätt användarnamn
-      Group=webgroup  # Byt ut detta mot rätt grupp
+      User=ec2-user
+      Group=ec2-user
       WorkingDirectory=/var/app/current
       ExecStart=/usr/bin/python3 app.py  # Byt ut detta mot ditt startkommando
       Restart=always
