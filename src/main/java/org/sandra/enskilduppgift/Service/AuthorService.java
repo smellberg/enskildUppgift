@@ -36,7 +36,4 @@ public class AuthorService {
         authorRepository.deleteById(id);
     }
 
-    public void removeAuthor(Author author){
-        authorRepository.deleteById(author.getId());
-    }
 }

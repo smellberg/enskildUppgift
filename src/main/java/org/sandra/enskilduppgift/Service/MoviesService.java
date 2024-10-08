@@ -19,7 +19,7 @@ public class MoviesService {
     }
 
     public Optional<Movies> getOneMovie(Long id){
-        return Optional.of(moviesRepository.findById(id).orElse(new Movies()));
+        return moviesRepository.findById(id);
     }
 
     public Movies saveMovie(Movies movie){
@@ -32,11 +32,11 @@ public class MoviesService {
         return moviesRepository.save(currentMovie.get());
     }
 
-    public void removeMovie(Long id){
-        moviesRepository.deleteById(id);
-    }
-
-    public void removeMovie(Movies movie){
-        moviesRepository.deleteById(movie.getId());
+    public boolean removeMovie(Long id){
+        if (moviesRepository.existsById(id)) {
+            moviesRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 }
