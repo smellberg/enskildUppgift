@@ -19,7 +19,7 @@ public class AuthorService {
     }
 
     public Optional<Author> getOneAuthor(Long id){
-        return Optional.of(authorRepository.findById(id).orElse(new Author()));
+        return authorRepository.findById(id);
     }
 
     public Author saveAuthor(Author author){
@@ -28,12 +28,29 @@ public class AuthorService {
 
     public Author patchAuthor(Author author, Long id){
         Optional <Author> currentAuthor = authorRepository.findById(author.getId());
-        if (!author.getName().equals(currentAuthor.get().getName())) currentAuthor.get().setName(author.getName());
-        return authorRepository.save(currentAuthor.get());
+        if (currentAuthor.isPresent()) {
+            Author existingAuthor = currentAuthor.get();
+
+            if (!author.getName().equals(existingAuthor.getName())) {
+                existingAuthor.setName(author.getName());
+            }
+
+            if (author.getAge() != existingAuthor.getAge()) {
+                existingAuthor.setAge(author.getAge());
+            }
+
+            return authorRepository.save(existingAuthor);
+        }
+
+        throw new RuntimeException("Author not found");
     }
 
-    public void removeAuthor(Long id){
-        authorRepository.deleteById(id);
+    public boolean removeAuthor(Long id){
+        if (authorRepository.existsById(id)) {
+            authorRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
-
 }
+

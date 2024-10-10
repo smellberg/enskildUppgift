@@ -26,7 +26,6 @@ public class MoviesServiceTest {
 
     private Movies movie1;
     private Movies movie2;
-    private Movies existingMovie;
     private Movies patchMovie;
 
     @BeforeEach
@@ -34,18 +33,17 @@ public class MoviesServiceTest {
         MockitoAnnotations.openMocks(this);
         movie1 = new Movies();
         movie1.setId(1L);
+        movie1.setYear(1990);
         movie1.setTitle("Movie 1");
 
         movie2 = new Movies();
         movie2.setId(2L);
+        movie2.setYear(2000);
         movie2.setTitle("Movie 2");
-
-        existingMovie = new Movies();
-        existingMovie.setId(1L);
-        existingMovie.setTitle("Original Title");
 
         patchMovie = new Movies();
         patchMovie.setId(1L); // Samma ID som existingMovie
+        patchMovie.setYear(2020);
         patchMovie.setTitle("Updated Title");
     }
 
@@ -56,7 +54,10 @@ public class MoviesServiceTest {
 
         assertEquals(2,movies.size());
         assertEquals("Movie 1", movies.get(0).getTitle());
+        assertEquals(1990, movies.get(0).getYear());
+
         assertEquals("Movie 2", movies.get(1).getTitle());
+        assertEquals(2000, movies.get(1).getYear());
 
         verify(moviesRepository, times(1)).findAll();
         }
@@ -73,6 +74,7 @@ public class MoviesServiceTest {
             assertEquals(true, resultExisting.isPresent());
             assertEquals(existingMovieId, resultExisting.get().getId());
             assertEquals("Movie 1", resultExisting.get().getTitle());
+            assertEquals(1990, resultExisting.get().getYear());
 
             Optional<Movies> resultNonExisting = moviesService.getOneMovie(nonExistingMovieId);
             assertEquals(false, resultNonExisting.isPresent());
@@ -83,32 +85,27 @@ public class MoviesServiceTest {
 
         @Test
     void testSaveMovie(){
-        Movies movie = new Movies();
-        movie.setId(3L);
-        movie.setTitle("Stepbrothers");
-        movie.setYear(2005);
+        when(moviesRepository.save(movie1)).thenReturn(movie1);
 
-        when(moviesRepository.save(movie)).thenReturn((movie));
+        Movies savedMovie = moviesService.saveMovie(movie1);
 
-        Movies savedMovie = moviesService.saveMovie(movie);
-
-        verify(moviesRepository, times(1)).save(movie);
-
-            assertEquals(movie, savedMovie);
-            assertEquals("Stepbrothers", savedMovie.getTitle());
-            assertEquals(2005, savedMovie.getYear());
+        verify(moviesRepository, times(1)).save(movie1);
+        assertEquals(movie1, savedMovie);
+        assertEquals("Movie 1", savedMovie.getTitle());
+        assertEquals(1990, savedMovie.getYear());
         }
 
         @Test
         void testPatchMovie(){
-            when(moviesRepository.findById(existingMovie.getId())).thenReturn(Optional.of(existingMovie));
-            when(moviesRepository.save(existingMovie)).thenReturn(existingMovie);
+            when(moviesRepository.findById(movie1.getId())).thenReturn(Optional.of(movie1));
+            when(moviesRepository.save(movie1)).thenReturn(movie1);
 
-            Movies updatedMovie = moviesService.patchMovie(patchMovie, existingMovie.getId());
+            Movies updatedMovie = moviesService.patchMovie(patchMovie, movie1.getId());
             assertEquals("Updated Title", updatedMovie.getTitle());
+            assertEquals(2020, updatedMovie.getYear());
 
-            verify(moviesRepository, times(1)).findById(existingMovie.getId());
-            verify(moviesRepository, times(1)).save(existingMovie);
+            verify(moviesRepository, times(1)).findById(movie1.getId());
+            verify(moviesRepository, times(1)).save(movie1);
         }
 @Test
     void testRemoveMovie(){

@@ -27,9 +27,23 @@ public class MoviesService {
     }
 
     public Movies patchMovie(Movies movie, Long id){
-        Optional <Movies> currentMovie = moviesRepository.findById(movie.getId());
-        if (!movie.getTitle().equals(currentMovie.get().getTitle())) currentMovie.get().setTitle(movie.getTitle());
-        return moviesRepository.save(currentMovie.get());
+        Optional<Movies> currentMovieOpt = moviesRepository.findById(id);
+
+        if (currentMovieOpt.isPresent()) {
+            Movies currentMovie = currentMovieOpt.get();
+
+            if (!movie.getTitle().equals(currentMovie.getTitle())) {
+                currentMovie.setTitle(movie.getTitle());
+            }
+
+            if (movie.getYear() != currentMovie.getYear()) {
+                currentMovie.setYear(movie.getYear());
+            }
+
+            return moviesRepository.save(currentMovie);
+        }
+
+        throw new RuntimeException("Movie not found");
     }
 
     public boolean removeMovie(Long id){
