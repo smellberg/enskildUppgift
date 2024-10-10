@@ -116,11 +116,11 @@ public class AuthorServiceTest {
     @Test
     void testRemoveAuthor(){
         when(authorRepository.findById(1L)).thenReturn(Optional.of(author1));
-        when(authorRepository.existsById(1L)).thenReturn(true);
 
         boolean result = authorService.removeAuthor(1L);
 
         assertTrue(result);
-        verify(authorRepository, times(1)).existsById(1L);
+        verify(authorRepository, times(1)).delete(author1);
+        verify(authorRepository, never()).existsById(anyLong());
     }
 }
