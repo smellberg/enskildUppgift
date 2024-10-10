@@ -31,10 +31,14 @@ public class MoviesController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Movies>> getOneMovie(@PathVariable long id){
+    public ResponseEntity<?> getOneMovie(@PathVariable long id){
         Optional<Movies> movie = moviesService.getOneMovie(id);
 
-        return ResponseEntity.ok(movie);
+        if (movie.isPresent()) {
+            return ResponseEntity.ok(movie.get());
+        } else {
+            return ResponseEntity.status(404).body("Movie with ID " + id + " not found");
+        }
     }
 
     @PostMapping("")
@@ -48,6 +52,16 @@ public class MoviesController {
                                                  @RequestBody Movies newMovie){
         Movies patchedMovie = moviesService.patchMovie(newMovie, id);
         return ResponseEntity.ok(patchedMovie);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Movies> replaceMovie(@PathVariable Long id, @RequestBody Movies updatedMovie) {
+        try {
+            Movies savedMovie = moviesService.replaceMovie(id, updatedMovie);
+            return ResponseEntity.ok(savedMovie);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(null); // Returnera 404 om filmen inte finns
+        }
     }
 
     @DeleteMapping("/{id}")

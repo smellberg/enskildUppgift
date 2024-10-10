@@ -2,8 +2,10 @@ package org.sandra.enskilduppgift.Service;
 
 import lombok.RequiredArgsConstructor;
 import org.sandra.enskilduppgift.Models.Author;
+import org.sandra.enskilduppgift.Models.Movies;
 import org.sandra.enskilduppgift.Repository.AuthorRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -45,9 +47,21 @@ public class AuthorService {
         throw new RuntimeException("Author not found");
     }
 
+    @Transactional
     public boolean removeAuthor(Long id){
-        if (authorRepository.existsById(id)) {
-            authorRepository.deleteById(id);
+        Optional<Author> authorOpt = authorRepository.findById(id);
+        if (authorOpt.isPresent()) {
+            Author author = authorOpt.get();
+
+            List<Movies> movies = author.getMovies();
+            if (movies != null) {
+                for (Movies movie : movies) {
+
+                    movie.setAuthor(null);
+                }
+            }
+
+            authorRepository.delete(author);
             return true;
         }
         return false;
